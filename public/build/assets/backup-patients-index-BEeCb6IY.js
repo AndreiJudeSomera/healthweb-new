@@ -1,0 +1,24 @@
+import"./modal-MwHSR4zk.js";class d{constructor(e){if(this.opts={debounceMs:250,emptyMessage:"No records found.",...e},console.log(this.opts),this.table=document.getElementById(this.opts.tableId),this.tbody=document.getElementById(this.opts.tbodyId),this.searchInput=this.opts.searchInputId?document.getElementById(this.opts.searchInputId):null,!this.table||!this.tbody)throw new Error("GaricTable: tableId/tbodyId not found in DOM.");this.rows=[],this.debounceTimer=null,this._bind()}async load(){this._setLoading(!0);try{const e=await this.opts.fetchIndex("");this.rows=Array.isArray(e)?e:[],this.render()}finally{this._setLoading(!1)}}async search(e){const a=(e??"").trim();if(!this.opts.fetchSearch||a==="")return this.load();this._setLoading(!0);try{const t=await this.opts.fetchSearch(a);this.rows=Array.isArray(t)?t:[],this.render()}finally{this._setLoading(!1)}}render(){if(!this.rows.length){this.tbody.innerHTML=`
+        <tr class="">
+          <td class="text-center px-4 py-6" colspan="${this._colspan()}">
+            ${this._escapeHtml(this.opts.emptyMessage)}
+          </td>
+        </tr>
+      `;return}this.tbody.innerHTML=this.rows.map(e=>this._rowTemplate(e)).join("")}_bind(){var e;this.searchInput&&this.searchInput.addEventListener("input",()=>{clearTimeout(this.debounceTimer),this.debounceTimer=setTimeout(()=>{this.search(this.searchInput.value)},this.opts.debounceMs)}),(e=this.opts.actions)!=null&&e.length&&this.tbody.addEventListener("click",a=>{const t=a.target.closest("[data-dt-action]");if(!t)return;const i=t.dataset.dtAction,n=Number(t.dataset.dtRowIndex),o=this.rows[n],r=this.opts.actions.find(l=>l.key===i);r&&o&&r.onClick(o)})}_rowTemplate(e){var n;const a=this.opts.rowClass?this.opts.rowClass(e):"bg-indigo-50 border-t-4 border-white",t=this.opts.columns.map(o=>`<td class="text-start px-4 py-2">${o.render(e)}</td>`).join(""),i=(n=this.opts.actions)!=null&&n.length?`
+        <td class="px-4 py-2">
+          <div class="flex flex-row justify-center items-center gap-2">
+            ${this._actionsHtml(e)}
+          </div>
+        </td>
+      `:"";return`<tr class="${this._escapeHtml(a)}">${t}${i}</tr>`}_actionsHtml(e){const a=this.rows.indexOf(e);return this.opts.actions.map(t=>{const i=t.iconHtml??"",n=t.label??t.key;return`
+        <button
+          type="button"
+          data-dt-action="${this._escapeHtml(t.key)}"
+          data-dt-row-index="${a}"
+          class="${this._escapeHtml(t.className??"")}"
+          aria-label="${this._escapeHtml(n)}"
+          title="${this._escapeHtml(n)}"
+        >
+          ${i||this._escapeHtml(n)}
+        </button>
+      `}).join("")}_colspan(){var e;return this.opts.columns.length+((e=this.opts.actions)!=null&&e.length?1:0)}_setLoading(e){e?this.table.classList.add("opacity-70"):this.table.classList.remove("opacity-70")}_escapeHtml(e){return String(e??"").replaceAll("&","&amp").replaceAll("<","&lt").replaceAll(">","&gt").replaceAll('"',"&quot").replaceAll("'","&#039")}}async function c(s){const e=await fetch(s,{headers:{Accept:"application/json"}});if(!e.ok)throw new Error(`HTTP ${e.status}`);return await e.json()}function h(s){if(!s)return"";const e=new Date(s);return Number.isNaN(e.getTime())?s:e.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}function p(s){if(!s)return"";const e=new Date(s);if(Number.isNaN(e.getTime()))return"";const a=Date.now()-e.getTime();return Math.floor(a/(365.25*24*60*60*1e3))}function m(){const s=document.getElementById("patientsTableEl"),e=document.getElementById("patientsTbody");if(!s||!e)return;new d({tableId:"patientsTableEl",tbodyId:"patientsTbody",searchInputId:"searchPatient",emptyMessage:"No patients found.",fetchIndex:async()=>{const t=await c("/patients/records");return console.log("INDEX DATA:",t),console.log("IS ARRAY?",Array.isArray(t)),t},fetchSearch:async t=>await c(`/patients/search?q=${encodeURIComponent(t)}`),columns:[{key:"last_name",render:t=>t.user_last_name??t.last_name??""},{key:"first_name",render:t=>t.user_first_name??t.first_name??""},{key:"age",render:t=>t.age??p(t.date_of_birth)},{key:"gender",render:t=>t.gender??""},{key:"created_at",render:t=>h(t.created_at)}],actions:[{key:"view",label:"View",className:"px-2 py-1 border-2 border-blue-950 text-blue-950 hover:bg-indigo-100 rounded-md",iconHtml:'<i class="fa-solid fa-eye fa-sm"></i>',onClick:t=>alert("view: "+t)},{key:"edit",label:"Edit",className:"px-2 py-1 border-2 border-amber-800 text-amber-800 hover:bg-amber-100 rounded-md",iconHtml:'<i class="fa-solid fa-pencil fa-sm"></i>',onClick:t=>alert("edit: "+t)},{key:"delete",label:"Delete",className:"px-2 py-1 border-2 border-red-800 text-red-800 hover:bg-red-100 rounded-md",iconHtml:'<i class="fa-solid fa-trash fa-sm"></i>',onClick:t=>alert("delete: "+t)}]}).load()}document.addEventListener("DOMContentLoaded",m);
