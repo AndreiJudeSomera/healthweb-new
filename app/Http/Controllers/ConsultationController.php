@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Consultation;
 use App\Models\PatientRecord;
 use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use App\Services\IprogSmsService;
 use App\Models\ClinicStaff;
 use Illuminate\Http\Request;
@@ -239,13 +240,23 @@ class ConsultationController extends Controller {
             ]));
 
             foreach ($medicineList as $m) {
+                $medicineId = $m['medicine_id'] ?? null;
+
+                if (!$medicineId && !empty($m['medicine_name'])) {
+                    $item = PrescriptionItem::firstOrCreate(
+                        ['medicine_name' => $m['medicine_name']],
+                        ['manually_added' => true]
+                    );
+                    $medicineId = $item->id;
+                }
+
                 Prescription::create([
                     'consultation_id' => $consultation->id,
-                    'medicine_id' => $m['medicine_id'] ?? null,
-                    'dosage' => $m['dosage'] ?? null,
-                    'frequency' => $m['frequency'] ?? null,
-                    'duration' => $m['duration'] ?? null,
-                    'instructions' => $m['instructions'] ?? null,
+                    'medicine_id'     => $medicineId,
+                    'dosage'          => $m['dosage'] ?? null,
+                    'frequency'       => $m['frequency'] ?? null,
+                    'duration'        => $m['duration'] ?? null,
+                    'instructions'    => $m['instructions'] ?? null,
                 ]);
             }
 
@@ -266,8 +277,9 @@ class ConsultationController extends Controller {
 
     if ($consultation->document_type === 'prescription') {
       $data['medicine_list'] = $consultation->prescriptions->map(fn($p) => [
-        'medicine_id'   => $p->medicine_id,
-        'medicine_name' => $p->medicine?->medicine_name ?? 'Unknown',
+        'medicine_id'    => $p->medicine_id,
+        'medicine_name'  => $p->medicine?->medicine_name ?? 'Unknown',
+        'manually_added' => (bool) ($p->medicine?->manually_added ?? false),
         'dosage'        => $p->dosage ?? '',
         'frequency'     => $p->frequency ?? '',
         'duration'      => $p->duration ?? '',
@@ -340,9 +352,19 @@ public function update(Request $request, int $id)
             $consultation->prescriptions()->delete();
 
             foreach ($medicineList as $m) {
+                $medicineId = $m['medicine_id'] ?? null;
+
+                if (!$medicineId && !empty($m['medicine_name'])) {
+                    $item = PrescriptionItem::firstOrCreate(
+                        ['medicine_name' => $m['medicine_name']],
+                        ['manually_added' => true]
+                    );
+                    $medicineId = $item->id;
+                }
+
                 Prescription::create([
                     'consultation_id' => $consultation->id,
-                    'medicine_id'     => $m['medicine_id'] ?? null,
+                    'medicine_id'     => $medicineId,
                     'dosage'          => $m['dosage'] ?? null,
                     'frequency'       => $m['frequency'] ?? null,
                     'duration'        => $m['duration'] ?? null,
