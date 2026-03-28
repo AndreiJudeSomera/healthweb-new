@@ -223,7 +223,7 @@
     ]
   },
   "resources/js/pages/audit-index.js": {
-    "file": "assets/audit-index-CdLwnq7p.js",
+    "file": "assets/audit-index-BRsorV0g.js",
     "name": "audit-index",
     "src": "resources/js/pages/audit-index.js",
     "isEntry": true,
@@ -297,7 +297,7 @@
     ]
   },
   "resources/js/pages/patients-index.js": {
-    "file": "assets/patients-index-D3iaS9RQ.js",
+    "file": "assets/patients-index-BDCMxPGo.js",
     "name": "patients-index",
     "src": "resources/js/pages/patients-index.js",
     "isEntry": true,
